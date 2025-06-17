@@ -1,0 +1,17 @@
+# Default owners for everything in the repo
+*       @Linced
+
+# Specific owners for certain directories
+/packages/database/ @Linced
+/apps/web/ @Linced
+/apps/api/ @Linced
+/.github/ @Linced
+
+# Documentation
+/README.md @Linced
+/CONTRIBUTING.md @Linced
+
+# Configuration files
+/package.json @Linced
+/tsconfig.json @Linced
+/.eslintrc.json @Linced

@@ -1,0 +1,38 @@
+name: Branch Protection
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  branch-protection:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check branch protection
+      run: |
+        # This is a placeholder for branch protection checks
+        # In a real scenario, you would use GitHub API to enforce these rules
+        echo "Branch protection rules would be enforced here"
+        echo "For example:"
+        echo "- Require pull request reviews before merging"
+        echo "- Require status checks to pass before merging"
+        echo "- Require linear history"
+        echo "- Include administrators"
+        echo "- Restrict who can push to matching branches"
