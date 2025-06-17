@@ -1,0 +1,75 @@
+// Colors
+// ======
+// All color variables for the design system
+
+// Dark Theme (Primary)
+$background-primary: #0A0E1A;      // Deep navy background
+$background-secondary: #111827;    // Darker sections
+$background-tertiary: #1A2332;     // Cards/panels
+$background-hover: #243447;        // Hover states
+
+// Accent Colors
+$accent-primary: #3B82F6;          // Primary blue (CTAs, links)
+$accent-success: #10B981;          // Success/profit green
+$accent-danger: #EF4444;           // Danger/loss red
+$accent-warning: #F59E0B;          // Warning amber
+$accent-info: #8B5CF6;             // Info purple
+
+// Text Colors
+$text-primary: #F9FAFB;            // Primary text
+$text-secondary: #9CA3AF;          // Secondary text
+$text-muted: #6B7280;              // Muted text
+$text-disabled: #4B5563;           // Disabled text
+
+// Border Colors
+$border-primary: #374151;          // Primary borders
+$border-secondary: #1F2937;        // Secondary borders
+$border-focus: #3B82F6;            // Focus borders
+
+// Chart Colors
+$chart-green: #10B981;             // Bullish
+$chart-red: #EF4444;               // Bearish
+$chart-blue: #3B82F6;              // Primary indicator
+$chart-purple: #8B5CF6;            // Secondary indicator
+$chart-yellow: #F59E0B;            // Tertiary indicator
+
+// Status Colors
+$status-online: #10B981;
+$status-offline: #6B7280;
+$status-busy: #F59E0B;
+$status-error: #EF4444;
+
+// Background Overlays
+$overlay-light: rgba(255, 255, 255, 0.05);
+$overlay-medium: rgba(255, 255, 255, 0.1);
+$overlay-heavy: rgba(255, 255, 255, 0.2);
+$overlay-dark: rgba(0, 0, 0, 0.5);
+
+// Export for use in TypeScript/JavaScript
+:export {
+  // Theme colors
+  backgroundPrimary: $background-primary;
+  backgroundSecondary: $background-secondary;
+  backgroundTertiary: $background-tertiary;
+  backgroundHover: $background-hover;
+  
+  // Accent colors
+  accentPrimary: $accent-primary;
+  accentSuccess: $accent-success;
+  accentDanger: $accent-danger;
+  accentWarning: $accent-warning;
+  accentInfo: $accent-info;
+  
+  // Text colors
+  textPrimary: $text-primary;
+  textSecondary: $text-secondary;
+  textMuted: $text-muted;
+  textDisabled: $text-disabled;
+  
+  // Chart colors
+  chartGreen: $chart-green;
+  chartRed: $chart-red;
+  chartBlue: $chart-blue;
+  chartPurple: $chart-purple;
+  chartYellow: $chart-yellow;
+}

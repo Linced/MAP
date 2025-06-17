@@ -1,0 +1,136 @@
+// Animations & Transitions
+// =======================
+// Animation utilities and keyframes
+
+// Timing Functions
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-out: cubic-bezier(0, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+// Durations
+$duration-75: 75ms;
+$duration-100: 100ms;
+$duration-150: 150ms;
+$duration-200: 200ms;
+$duration-300: 300ms;
+$duration-500: 500ms;
+$duration-700: 700ms;
+$duration-1000: 1000ms;
+
+// Standard Transitions
+.transition-all {
+  transition: all $duration-200 $ease-in-out;
+}
+
+.transition-colors {
+  transition: background-color $duration-200, 
+              border-color $duration-200, 
+              color $duration-200;
+}
+
+.transition-transform {
+  transition: transform $duration-200 $ease-out;
+}
+
+// Keyframe Animations
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes slide-up {
+  from { 
+    transform: translateY(10px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes slide-down {
+  from { 
+    transform: translateY(-10px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// Animation Classes
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s $ease-out;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s $ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s $ease-out;
+}
+
+// Export for use in TypeScript/JavaScript
+:export {
+  // Timing functions
+  easeInOut: $ease-in-out;
+  easeOut: $ease-out;
+  easeIn: $ease-in;
+  
+  // Durations
+  duration75: $duration-75;
+  duration100: $duration-100;
+  duration150: $duration-150;
+  duration200: $duration-200;
+  duration300: $duration-300;
+  duration500: $duration-500;
+  duration700: $duration-700;
+  duration1000: $duration-1000;
+}

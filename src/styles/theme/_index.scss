@@ -1,0 +1,246 @@
+// Theme Index
+// ===========
+// Main entry point for theme styles
+
+// 1. Include base variables
+@import 'colors';
+@import 'typography';
+@import 'spacing';
+@import 'animations';
+
+// 2. Include component styles
+@import 'components';
+
+// 3. Global styles
+:root {
+  // Colors
+  --background-primary: #{$background-primary};
+  --background-secondary: #{$background-secondary};
+  --background-tertiary: #{$background-tertiary};
+  --background-hover: #{$background-hover};
+  
+  --accent-primary: #{$accent-primary};
+  --accent-success: #{$accent-success};
+  --accent-danger: #{$accent-danger};
+  --accent-warning: #{$accent-warning};
+  --accent-info: #{$accent-info};
+  
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-muted: #{$text-muted};
+  --text-disabled: #{$text-disabled};
+  
+  --border-primary: #{$border-primary};
+  --border-secondary: #{$border-secondary};
+  --border-focus: #{$border-focus};
+  
+  // Spacing
+  --space-0: #{$space-0};
+  --space-1: #{$space-1};
+  --space-2: #{$space-2};
+  --space-3: #{$space-3};
+  --space-4: #{$space-4};
+  --space-5: #{$space-5};
+  --space-6: #{$space-6};
+  --space-8: #{$space-8};
+  --space-10: #{$space-10};
+  --space-12: #{$space-12};
+  --space-16: #{$space-16};
+  --space-20: #{$space-20};
+  --space-24: #{$space-24};
+  
+  // Typography
+  --font-primary: #{$font-primary};
+  --font-mono: #{$font-mono};
+  --font-display: #{$font-display};
+  
+  --text-xs: #{$text-xs};
+  --text-sm: #{$text-sm};
+  --text-base: #{$text-base};
+  --text-lg: #{$text-lg};
+  --text-xl: #{$text-xl};
+  --text-2xl: #{$text-2xl};
+  --text-3xl: #{$text-3xl};
+  --text-4xl: #{$text-4xl};
+  --text-5xl: #{$text-5xl};
+  
+  --leading-tight: #{$leading-tight};
+  --leading-normal: #{$leading-normal};
+  --leading-relaxed: #{$leading-relaxed};
+  
+  --font-normal: #{$font-normal};
+  --font-medium: #{$font-medium};
+  --font-semibold: #{$font-semibold};
+  --font-bold: #{$font-bold};
+  --font-extrabold: #{$font-extrabold};
+  
+  // Shadows
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-outline: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  --shadow-none: none;
+  
+  // Border radius
+  --radius-sm: 0.25rem;
+  --radius: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+  
+  // Z-index
+  --z-0: 0;
+  --z-10: 10;
+  --z-20: 20;
+  --z-30: 30;
+  --z-40: 40;
+  --z-50: 50;
+  --z-auto: auto;
+}
+
+// Base styles
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: $font-primary;
+  line-height: $leading-normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: $background-primary;
+  color: $text-primary;
+  font-family: $font-primary;
+  font-size: $text-base;
+  line-height: $leading-normal;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 $space-4 0;
+  font-family: $font-display;
+  font-weight: $font-bold;
+  line-height: $leading-tight;
+  color: $text-primary;
+}
+
+h1 { 
+  font-size: $text-5xl;
+  @media (max-width: $breakpoint-md) {
+    font-size: $text-4xl;
+  }
+}
+
+h2 { 
+  font-size: $text-4xl;
+  @media (max-width: $breakpoint-md) {
+    font-size: $text-3xl;
+  }
+}
+
+h3 { 
+  font-size: $text-3xl;
+  @media (max-width: $breakpoint-md) {
+    font-size: $text-2xl;
+  }
+}
+
+h4 { 
+  font-size: $text-2xl;
+  @media (max-width: $breakpoint-md) {
+    font-size: $text-xl;
+  }
+}
+
+h5 { 
+  font-size: $text-xl;
+  font-weight: $font-semibold;
+}
+
+h6 { 
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $text-secondary;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: $space-4;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  color: $accent-primary;
+  text-decoration: none;
+  transition: color $duration-150 $ease-in-out;
+  
+  &:hover {
+    color: lighten($accent-primary, 10%);
+    text-decoration: underline;
+  }
+}
+
+// Utility classes
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $space-6;
+  padding-right: $space-6;
+  
+  @media (min-width: $breakpoint-sm) {
+    max-width: $container-sm;
+  }
+  
+  @media (min-width: $breakpoint-md) {
+    max-width: $container-md;
+  }
+  
+  @media (min-width: $breakpoint-lg) {
+    max-width: $container-lg;
+  }
+  
+  @media (min-width: $breakpoint-xl) {
+    max-width: $container-xl;
+  }
+  
+  @media (min-width: $breakpoint-2xl) {
+    max-width: $container-2xl;
+  }
+  
+  &--fluid {
+    max-width: 100%;
+  }
+}
+
+// Screen reader only utility
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
