@@ -1,0 +1,440 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: market_assistant_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-market_assistant}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db/:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - market-assistant-network
+
+  # Redis for caching and rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: market_assistant_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD:-your_redis_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - market-assistant-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./backend/services/auth-service/Dockerfile
+    container_name: market_assistant_auth
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-market_assistant}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_redis_password}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key}
+      - FRONTEND_URL=http://localhost:3000
+      - SMTP_HOST=${SMTP_HOST:-smtp.ethereal.email}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER:-your_smtp_user}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-your_smtp_password}
+      - EMAIL_FROM=noreply@marketassistant.com
+      - EMAIL_FROM_NAME="Market Assistant"
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/auth-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  # User Service
+  user-service:
+    build:
+      context: .
+      dockerfile: ./backend/services/user-service/Dockerfile
+    container_name: market_assistant_user
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-market_assistant}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_redis_password}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/user-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  # Market Data Service
+  market-data-service:
+    build:
+      context: .
+      dockerfile: ./backend/services/market-data-service/Dockerfile
+    container_name: market_assistant_market_data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-market_assistant}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_redis_password}
+      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY:-your_alpha_vantage_key}
+      - POLYGON_IO_API_KEY=${POLYGON_IO_API_KEY:-your_polygon_io_key}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/market-data-service:/usr/src/app
+
+  # Analysis Service
+  analysis-service:
+    build:
+      context: .
+      dockerfile: ./backend/services/analysis-service/Dockerfile
+    container_name: market_assistant_analysis
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-market_assistant}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_redis_password}
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      market-data-service:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/analysis-service:/usr/src/app
+
+  # AI Service
+  ai-service:
+    build:
+      context: .
+      dockerfile: ./backend/services/ai-service/Dockerfile
+    container_name: market_assistant_ai
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8002
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-market_assistant}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_redis_password}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_key}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-your_anthropic_key}
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/ai-service:/usr/src/app
+
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./backend/services/notification-service/Dockerfile
+    container_name: market_assistant_notification
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-market_assistant}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_redis_password}
+      - SMTP_HOST=${SMTP_HOST:-smtp.ethereal.email}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER:-your_smtp_user}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-your_smtp_password}
+      - EMAIL_FROM=noreply@marketassistant.com
+      - EMAIL_FROM_NAME="Market Assistant"
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/notification-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  # Storage Service
+  storage-service:
+    build:
+      context: .
+      dockerfile: ./backend/services/storage-service/Dockerfile
+    container_name: market_assistant_storage
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-market_assistant}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_redis_password}
+      - STORAGE_PATH=/data/storage
+      - MAX_FILE_SIZE=10485760 # 10MB
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/storage-service:/usr/src/app
+      - /usr/src/app/node_modules
+      - storage_data:/data/storage
+
+  # API Gateway (to be implemented)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./backend/services/api-gateway/Dockerfile
+    container_name: market_assistant_gateway
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - USER_SERVICE_URL=http://user-service:3002
+      - MARKET_DATA_SERVICE_URL=http://market-data-service:8000
+      - ANALYSIS_SERVICE_URL=http://analysis-service:8001
+      - AI_SERVICE_URL=http://ai-service:8002
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3003
+      - STORAGE_SERVICE_URL=http://storage-service:3004
+    ports:
+      - "3000:3000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      market-data-service:
+        condition: service_healthy
+      analysis-service:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      storage-service:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./backend/services/api-gateway:/usr/src/app
+      - /usr/src/app/node_modules
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    container_name: market_assistant_frontend
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+      - NEXT_PUBLIC_WS_URL=ws://localhost:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - market-assistant-network
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
+
+  # Traefik for reverse proxy (optional)
+  traefik:
+    image: traefik:v2.10
+    container_name: market_assistant_traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.leresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.leresolver.acme.email=${LETSENCRYPT_EMAIL:-your-email@example.com}"
+      - "--certificatesresolvers.leresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/letsencrypt:/letsencrypt
+    networks:
+      - market-assistant-network
+
+  # Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: market_assistant_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    depends_on:
+      - node-exporter
+    networks:
+      - market-assistant-network
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: market_assistant_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks:
+      - market-assistant-network
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: market_assistant_node_exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    deploy:
+      mode: global
+    networks:
+      - market-assistant-network
+
+  # Portainer for container management (optional)
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: market_assistant_portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - market-assistant-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  storage_data:
+  prometheus_data:
+  grafana_data:
+  portainer_data:
+
+networks:
+  market-assistant-network:
+    driver: bridge
